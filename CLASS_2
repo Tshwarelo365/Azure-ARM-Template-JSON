@@ -1,0 +1,113 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "VNETName": {
+            "type": "string",
+            "defaultValue": "Virtual_Network_1"
+        },
+        "subnet1": {
+            "type": "string",
+            "defaultValue": "frontEndsubnet"
+        },
+        "subnet2": {
+            "type": "string",
+            "defaultValue": "backEndsubnet"
+        },
+        "subnet3": {
+            "type": "string",
+            "defaultValue": "subnet 3"
+        }
+
+    },
+    "functions": [],
+    "variables": {
+        "addressSpace":"192.168.0.0/16",
+        "subnet1":"192.168.2.0/24",
+        "subnet2":"192.168.4.0/24",
+        "subnet3":"192.168.6.0/24"
+        
+    },
+    "resources": [
+    {
+        "name": "[parameters('VNETName')]",
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2023-04-01",
+        "location": "[resourceGroup().location]",
+        "tags": {
+            "displayName": "[parameters('VNETName')]"
+        },
+        "properties": {
+            "addressSpace": {
+                "addressPrefixes": [
+                    "[variables('addressSpace')]"
+                ]
+            },
+            "subnets": [
+                {
+                    "name": "[parameters('subnet1')]",
+                    "properties": {
+                        "addressPrefix": "[variables('subnet1')]"
+                    }
+                },
+                {
+                    "name": "[parameters('subnet2')]",
+                    "properties": {
+                        "addressPrefix": "[variables('subnet2')]"
+                    }
+                },
+                {
+                    "name": "[parameters('subnet3')]",
+                    "properties": {
+                        "addressPrefix": "[variables('subnet3')]"
+                    }
+                }
+            ]
+        }
+    },
+ {
+    "name": "networkSecurityGroup1",
+    "type": "Microsoft.Network/networkSecurityGroups",
+    "apiVersion": "2023-04-01",
+    "location": "[resourceGroup().location]",
+    "properties": {
+        "securityRules": [
+            {
+                "name": "allowTraffic",
+                "properties": {
+                    "description": "Allows traffic",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "80",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "[variables('subnet1')]",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                }
+            },
+            {
+                "name": "denyTraffic",
+                "properties": {
+                    "description": "Deny traffic",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "22",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "[variables('subnet2')]",
+                    "access": "Deny",
+                    "priority": 100,
+                    "direction": "Inbound"
+                }
+                
+            }
+            
+        ]
+    }
+ }
+
+ 
+
+    ],
+    "outputs": {}
+}
